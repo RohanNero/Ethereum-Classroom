@@ -8,6 +8,18 @@ export type ChainAttributes = {
   // for networks having native currency other than ETH
   priceFeed: string;
   url?: string;
+  // Will we have a contract address for every EIP/contract? This means we need addresses for our interaction/side contracts as well.
+  delegatecall?: {
+    main: string;
+    add: string;
+    sub: string;
+    mul: string;
+    reset: string;
+  };
+  token?: {
+    main: string;
+    swap: string;
+  };
 };
 
 // To allow your dapp to live on another chain, simply add its chainId to this array.
@@ -40,10 +52,28 @@ export const chainData: Record<string, ChainAttributes> = {
   [chains.polygon.id]: {
     color: "#2bbdf7",
     priceFeed: "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676", // MATIC (On Ethereum)
+    delegatecall: {
+      main: "0xe384743171E4338AcA441309Cf285A2E9bBD0fE2",
+      add: "0xbEfF3E3E4062EEdF6cE56283BE3E523dC8aF5867",
+      sub: "0xB6D64577810E7CBe38D4AC36A410a2da8aE52B2A",
+      mul: "0xa00e6BBFDDC407Fc5F82f5D8609aaAafaBDa1c37",
+      reset: "0xbc76e82B992b7be3f906BAa15eB582Ea31d318C0",
+    },
   },
   [chains.polygonMumbai.id]: {
     color: "#92D9FA",
     priceFeed: "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676", // MATIC (On Ethereum)
+    delegatecall: {
+      main: "0x633803084Ab1d4ae623657D5E02c6D2923202954",
+      add: "0xfB95837cfd28985206200D7d8F7Bc6ba2580F434",
+      sub: "0x2C898f978D600F13B3dF62Bce000c989c85F08Ad",
+      mul: "0x4f8EFF760081CA22D356D92792B28F169f3304AE",
+      reset: "0x14cBf20165eF7853f772A36EE30BFc559a5Bd63e",
+    },
+    token: {
+      main: "0xD5D8484eE612D01f496F3156F63c03c0EAec6359",
+      swap: "0x0722BCB027F1F65767cb5bc3b343e42f035954D9",
+    },
   },
   [chains.optimismGoerli.id]: {
     color: "#f01a37",

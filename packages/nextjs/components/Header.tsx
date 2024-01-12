@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import * as chains from "viem/chains";
 import { useNetwork, useSwitchNetwork } from "wagmi";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useNetworkColor, useOutsideClick } from "~~/hooks/scaffold-eth";
 import scaffoldConfig from "~~/scaffold.config";
@@ -65,12 +65,12 @@ export const Header = () => {
       <li>
         <NavLink href="/">Home</NavLink>
       </li>
-      <li>
+      {/* <li>
         <NavLink href="/debug">
           <BugAntIcon className="h-4 w-4" />
           Debug Contracts
         </NavLink>
-      </li>
+      </li> */}
     </>
   );
 
@@ -104,7 +104,7 @@ export const Header = () => {
             <Image alt="SE2 logo" className="cursor-pointer" fill src="/logo.svg" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold leading-tight">Scaffold-ETH</span>
+            <span className="font-bold leading-tight">Dark Classroom</span>
             <span className="text-xs">Ethereum dev stack</span>
           </div>
         </Link>
