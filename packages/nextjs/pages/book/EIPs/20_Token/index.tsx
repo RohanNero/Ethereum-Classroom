@@ -142,19 +142,100 @@ const Home: NextPage = () => {
   };
 
   // Format the formData function args to be sent
-  const formatArgs = () => {
-    const argArray = [];
-    if (formData.from !== "") {
-      argArray.push(formData.from);
-    }
-    if (formData.to !== "") {
-      argArray.push(formData.to);
-    }
-    if (formData.amount !== 0) {
-      argArray.push(formData.amount);
-    }
+  // const formatArgs = () => {
+  //   const argArray = [];
+  //   if (formData.from !== "") {
+  //     argArray.push(formData.from);
+  //   }
+  //   if (formData.to !== "") {
+  //     argArray.push(formData.to);
+  //   }
+  //   if (formData.amount !== 0) {
+  //     argArray.push(formData.amount);
+  //   }
 
-    return argArray as unknown;
+  //   return argArray as unknown;
+  // };
+
+  // Get calldata for sending a transaction
+  const getCalldata = () => {
+    // Ensure the function name is valid
+    const currentFunction = formData.function as
+      | "mint"
+      | "allowance"
+      | "approve"
+      | "burn"
+      | "transfer"
+      | "transferFrom"
+      | "swap";
+    if (currentFunction == "mint" || currentFunction == "burn" || currentFunction == "swap") {
+      const callData = encodeFunctionData({
+        abi: tokenAbi,
+        functionName: currentFunction,
+        args: [BigInt(formData.amount)] as readonly [bigint],
+      });
+      return callData;
+    } else if (currentFunction == "allowance") {
+      const callData = encodeFunctionData({
+        abi: tokenAbi,
+        functionName: currentFunction,
+        args: [formData.from, formData.to] as readonly [string, string],
+      });
+      return callData;
+    } else if (currentFunction == "approve" || currentFunction == "transfer") {
+      const callData = encodeFunctionData({
+        abi: tokenAbi,
+        functionName: currentFunction,
+        args: [formData.to, BigInt(formData.amount)] as readonly [string, bigint],
+      });
+      return callData;
+    } else if (currentFunction == "transferFrom") {
+      const callData = encodeFunctionData({
+        abi: tokenAbi,
+        functionName: currentFunction,
+        args: [formData.from, formData.to, BigInt(formData.amount)] as readonly [string, string, bigint],
+      });
+      return callData;
+    } else {
+      return undefined;
+    }
+  };
+
+  // Get calldata for sending a transaction
+  const getSimulationResult = async (toAddress: string, address: string, publicClient: any) => {
+    // Ensure the function name is valid
+    const currentFunction = formData.function as "mint" | "approve" | "burn" | "transfer" | "transferFrom" | "swap";
+
+    if (currentFunction == "mint" || currentFunction == "burn" || currentFunction == "swap") {
+      const { result } = await publicClient.simulateContract({
+        address: toAddress,
+        abi: tokenAbi,
+        args: [BigInt(formData.amount)] as readonly [bigint],
+        functionName: currentFunction,
+        account: address,
+      });
+      return result;
+    } else if (currentFunction == "approve" || currentFunction == "transfer") {
+      const { result } = await publicClient.simulateContract({
+        address: toAddress,
+        abi: tokenAbi,
+        args: [formData.to, BigInt(formData.amount)] as readonly [string, bigint],
+        functionName: currentFunction,
+        account: address,
+      });
+      return result;
+    } else if (currentFunction == "transferFrom") {
+      const { result } = await publicClient.simulateContract({
+        address: toAddress,
+        abi: tokenAbi,
+        args: [formData.from, formData.to, BigInt(formData.amount)] as readonly [string, string, bigint],
+        functionName: currentFunction,
+        account: address,
+      });
+      return result;
+    } else {
+      return undefined;
+    }
   };
 
   // Views balance of user's Silver and Gold tokens
@@ -292,45 +373,34 @@ const Home: NextPage = () => {
     const toAddress = formData.function == "swap" ? goldContract : silverContract;
     console.log("contract:", toAddress);
 
-    // Ensure the function name is valid
-    const functionName = formData.function as
-      | "mint"
-      | "allowance"
-      | "approve"
-      | "burn"
-      | "transfer"
-      | "transferFrom"
-      | "swap";
-
-    const simulateFunctionNames = formData.function as
-      | "mint"
-      | "approve"
-      | "burn"
-      | "transfer"
-      | "transferFrom"
-      | "swap";
-
     // Format the function arguments
-    const args = formatArgs();
-    console.log("args:", args);
+    // const args = formatArgs();
+    // console.log("args:", args);
 
-    if (!args) return;
+    // if (!args) return;
 
-    // Encode the function data
-    const callData = encodeFunctionData({
-      abi: tokenAbi,
-      functionName: functionName,
-      args: args as readonly [string, string, bigint],
-    });
+    // // Encode the function data
+    // const callData = encodeFunctionData({
+    //   abi: tokenAbi,
+    //   functionName: functionName,
+    //   args: args as
+    //     | readonly [bigint]
+    //     | readonly [string, string]
+    //     | readonly [string, bigint]
+    //     | readonly [string, string, bigint],
+    // });
+    const callData = getCalldata();
+    console.log("callData:", callData);
 
     // Simulate `delegate` tx
-    const { result } = await publicClient.simulateContract({
-      address: toAddress,
-      abi: tokenAbi,
-      args: args as readonly [string, string, bigint],
-      functionName: simulateFunctionNames,
-      account: address,
-    });
+    const result = getSimulationResult(toAddress, address, publicClient);
+    // const { result } = await publicClient.simulateContract({
+    //   address: toAddress,
+    //   abi: tokenAbi,
+    //   args: args as readonly [string, string, bigint],
+    //   functionName: simulateFunctionNames,
+    //   account: address,
+    // });
     console.log("Simulaton result:", result);
     if (!result) {
       console.log("Simulation result is undefined!");
