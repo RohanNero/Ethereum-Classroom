@@ -201,7 +201,7 @@ const Home: NextPage = () => {
     }
   };
 
-  // Get calldata for sending a transaction
+  // Get result from a simulated transaction
   const getSimulationResult = async (toAddress: string, address: string, publicClient: any) => {
     // Ensure the function name is valid
     const currentFunction = formData.function as "mint" | "approve" | "burn" | "transfer" | "transferFrom" | "swap";
@@ -329,16 +329,9 @@ const Home: NextPage = () => {
 
   // Calls a contract with delegatecall when form is submitted
   const handleSubmit = async (e: FormEvent) => {
-    // To make this as simple as possible
-    // We can use a function to collect input variables form the useState of form input
-    // Will simply push from, to, amount. All ERC20 functions follow that logic
-    // I.e. Approve would have to, amount
-    // I.e. TransferFrom would have from, to, amount
-    // I.e. Transfer would have to, amount
-    // This logic is solid
-    // We can use the `to` section which is essentially the function we are calling
     e.preventDefault();
 
+    // Ensure chain and window.ethereum is defined
     if (!chain || !chain?.id) {
       console.log("Chain is undefined!");
       displayError("Chain is undefined!");
@@ -349,6 +342,7 @@ const Home: NextPage = () => {
       displayError("Window.ethereum is undefined!");
       return;
     }
+    // Set up public and wallet clients with Viem
     const publicClient = createPublicClient({
       transport: custom(window.ethereum),
     });
@@ -356,70 +350,61 @@ const Home: NextPage = () => {
       transport: custom(window.ethereum),
       chain: chain,
     });
+
+    // Ensure client objects were initialized correctly and are defined
     if (!walletClient || !publicClient) {
       console.log("Client is undefined!");
       return;
     }
+    // Get the user's addresses
     const [address] = await walletClient.requestAddresses();
 
+    // Get the Silver and Gold contract addresses from our chainData object
     const silverContract = chainData[chain?.id]?.token?.main;
     const goldContract = chainData[chain?.id]?.token?.swap;
+
+    // ENsure contract addresses are defined
     if (!silverContract || !goldContract) {
       displayError("Silver or Gold contract is undefined, try another chain!");
       return;
     }
 
-    // Call Token or SimpleSwap?
+    // Save variable determining which contract address we will call (swap is on Gold/SimpleSwap contract)
     const toAddress = formData.function == "swap" ? goldContract : silverContract;
     console.log("contract:", toAddress);
 
-    // Format the function arguments
-    // const args = formatArgs();
-    // console.log("args:", args);
-
-    // if (!args) return;
-
-    // // Encode the function data
-    // const callData = encodeFunctionData({
-    //   abi: tokenAbi,
-    //   functionName: functionName,
-    //   args: args as
-    //     | readonly [bigint]
-    //     | readonly [string, string]
-    //     | readonly [string, bigint]
-    //     | readonly [string, string, bigint],
-    // });
+    // Encode the function data to be sent
     const callData = getCalldata();
     console.log("callData:", callData);
 
-    // Simulate `delegate` tx
+    // Simulate transactions and get the result
     const result = getSimulationResult(toAddress, address, publicClient);
-    // const { result } = await publicClient.simulateContract({
-    //   address: toAddress,
-    //   abi: tokenAbi,
-    //   args: args as readonly [string, string, bigint],
-    //   functionName: simulateFunctionNames,
-    //   account: address,
-    // });
     console.log("Simulaton result:", result);
+
+    // Ensure simulated transaction result is defined
     if (!result) {
       console.log("Simulation result is undefined!");
     }
 
-    // Call `delegate`
+    // Send the transaction in a try/catch statement
     try {
+      // Set hash state to loading state
       setReturnData(prevData => ({
         ...prevData,
         hash: "Loading...",
       }));
+      // Send the transaction and get the hash
       const hash = await walletClient.sendTransaction({
         account: address,
         to: toAddress,
         data: callData,
       });
       console.log("hash:", hash);
+      // Wait for transaction to be completed and get the receipt
       const transaction = await publicClient.waitForTransactionReceipt({ hash: hash });
       console.log("tx receipt:", transaction);
+
+      // Set the hash value from our transaction
       setReturnData(prevData => ({
         ...prevData,
         hash: hash,
