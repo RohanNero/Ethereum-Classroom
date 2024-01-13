@@ -82,7 +82,7 @@ const Home: NextPage = () => {
   const [formData, setFormData] = useState({
     from: "",
     to: "",
-    amount: 0,
+    amount: undefined,
     function: "mint",
   });
   // Handle the state of tx interaction, if false the transaction will actually be submitted
@@ -169,6 +169,10 @@ const Home: NextPage = () => {
       | "transferFrom"
       | "swap";
     if (currentFunction == "mint" || currentFunction == "burn" || currentFunction == "swap") {
+      if (!formData.amount) {
+        displayError("Amount is undefined!");
+        return;
+      }
       const callData = encodeFunctionData({
         abi: tokenAbi,
         functionName: currentFunction,
@@ -176,6 +180,10 @@ const Home: NextPage = () => {
       });
       return callData;
     } else if (currentFunction == "allowance") {
+      if (!formData.from || !formData.to) {
+        displayError("From or To address is undefined!");
+        return;
+      }
       const callData = encodeFunctionData({
         abi: tokenAbi,
         functionName: currentFunction,
@@ -183,6 +191,10 @@ const Home: NextPage = () => {
       });
       return callData;
     } else if (currentFunction == "approve" || currentFunction == "transfer") {
+      if (!formData.to || !formData.amount) {
+        displayError("To address or amount is undefined!");
+        return;
+      }
       const callData = encodeFunctionData({
         abi: tokenAbi,
         functionName: currentFunction,
@@ -190,6 +202,10 @@ const Home: NextPage = () => {
       });
       return callData;
     } else if (currentFunction == "transferFrom") {
+      if (!formData.from || !formData.to || !formData.amount) {
+        displayError("From/To address or amount is undefined!");
+        return;
+      }
       const callData = encodeFunctionData({
         abi: tokenAbi,
         functionName: currentFunction,
@@ -207,6 +223,10 @@ const Home: NextPage = () => {
     const currentFunction = formData.function as "mint" | "approve" | "burn" | "transfer" | "transferFrom" | "swap";
 
     if (currentFunction == "mint" || currentFunction == "burn" || currentFunction == "swap") {
+      if (!formData.amount) {
+        displayError("Amount is undefined!");
+        return;
+      }
       const { result } = await publicClient.simulateContract({
         address: toAddress,
         abi: tokenAbi,
@@ -216,6 +236,10 @@ const Home: NextPage = () => {
       });
       return result;
     } else if (currentFunction == "approve" || currentFunction == "transfer") {
+      if (!formData.to || !formData.amount) {
+        displayError("To address or amount is undefined!");
+        return;
+      }
       const { result } = await publicClient.simulateContract({
         address: toAddress,
         abi: tokenAbi,
@@ -225,6 +249,10 @@ const Home: NextPage = () => {
       });
       return result;
     } else if (currentFunction == "transferFrom") {
+      if (!formData.from || !formData.to || !formData.amount) {
+        displayError("From/To address or amount is undefined!");
+        return;
+      }
       const { result } = await publicClient.simulateContract({
         address: toAddress,
         abi: tokenAbi,
