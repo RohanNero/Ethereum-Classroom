@@ -136,8 +136,10 @@ const Home: NextPage = () => {
 
     // Update the state only if it's a valid integer
     setFormData({
-      ...formData,
-      [name]: value,
+      from: "",
+      to: "",
+      amount: undefined,
+      function: value,
     });
   };
 
