@@ -342,11 +342,14 @@ const Home: NextPage = () => {
   };
 
   // Gets the Gold contract's allowance to spend the user's funds
-  const getAllowance = async (goldContract: string, address: string, publicClient: any) => {
+  const getAllowance = async (silverContract: string, goldContract: string, address: string, publicClient: any) => {
     if (!goldContract || !address) {
       displayError("One of the allowance input parameters are undefined!");
       return;
     }
+
+    console.log("owner addr:", address);
+    console.log("gold contract:", goldContract);
 
     // Encode the allowance calldata
     const callData = encodeFunctionData({
@@ -358,7 +361,7 @@ const Home: NextPage = () => {
     // View Silver and Gold total supplies
     const allowance = await publicClient.call({
       data: callData,
-      to: goldContract,
+      to: silverContract,
     });
     console.log("allowance:", allowance);
     if (!allowance?.data) {
@@ -369,9 +372,9 @@ const Home: NextPage = () => {
   };
 
   // Checks to ensure GoldContract's allowance to spend user tokens is larger than the amount being swapped
-  const checkAllowance = async (goldContract: string, address: string, publicClient: any) => {
+  const checkAllowance = async (silverContract: string, goldContract: string, address: string, publicClient: any) => {
     // Ensure the user has approved the Gold/SimpleSwap contract to take the funds
-    const allowance = await getAllowance(goldContract, address, publicClient);
+    const allowance = await getAllowance(silverContract, goldContract, address, publicClient);
     console.log("allowance:", allowance);
     const amount = formData.amount;
     console.log("amount:", amount);
@@ -445,7 +448,7 @@ const Home: NextPage = () => {
 
     // If calling the `swap` function, check to ensure the user has approved the Gold contract to take the Silver tokens
     if (formData.function == "swap") {
-      const check = await checkAllowance(goldContract, address, publicClient);
+      const check = await checkAllowance(silverContract, goldContract, address, publicClient);
       console.log("check:", check);
       if (check == false) return;
     }
