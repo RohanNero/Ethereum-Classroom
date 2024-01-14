@@ -143,22 +143,6 @@ const Home: NextPage = () => {
     });
   };
 
-  // Format the formData function args to be sent
-  // const formatArgs = () => {
-  //   const argArray = [];
-  //   if (formData.from !== "") {
-  //     argArray.push(formData.from);
-  //   }
-  //   if (formData.to !== "") {
-  //     argArray.push(formData.to);
-  //   }
-  //   if (formData.amount !== 0) {
-  //     argArray.push(formData.amount);
-  //   }
-
-  //   return argArray as unknown;
-  // };
-
   // Get calldata for sending a transaction
   const getCalldata = () => {
     // Ensure the function name is valid
@@ -357,6 +341,58 @@ const Home: NextPage = () => {
     }));
   };
 
+  // Gets the Gold contract's allowance to spend the user's funds
+  const getAllowance = async (goldContract: string, address: string, publicClient: any) => {
+    if (!goldContract || !address) {
+      displayError("One of the allowance input parameters are undefined!");
+      return;
+    }
+
+    // Encode the allowance calldata
+    const callData = encodeFunctionData({
+      abi: tokenAbi,
+      args: [address, goldContract],
+      functionName: "allowance",
+    });
+
+    // View Silver and Gold total supplies
+    const allowance = await publicClient.call({
+      data: callData,
+      to: goldContract,
+    });
+    console.log("allowance:", allowance);
+    if (!allowance?.data) {
+      return undefined;
+    } else {
+      return allowance.data;
+    }
+  };
+
+  // Checks to ensure GoldContract's allowance to spend user tokens is larger than the amount being swapped
+  const checkAllowance = async (goldContract: string, address: string, publicClient: any) => {
+    // Ensure the user has approved the Gold/SimpleSwap contract to take the funds
+    const allowance = await getAllowance(goldContract, address, publicClient);
+    console.log("allowance:", allowance);
+    const amount = formData.amount;
+    console.log("amount:", amount);
+
+    if (!amount || !allowance) {
+      displayError("Amount or allowance is undefined!");
+      return false;
+    }
+
+    if (parseInt(amount) > parseInt(allowance)) {
+      displayError(
+        `Must approve Gold/SimpleSwap contract to transferFrom Silver tokens! Allowance: ${parseInt(
+          allowance,
+        )} Amount: ${parseInt(amount)}`,
+      );
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   // Calls a contract with delegatecall when form is submitted
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -406,6 +442,13 @@ const Home: NextPage = () => {
     // Encode the function data to be sent
     const callData = getCalldata();
     console.log("callData:", callData);
+
+    // If calling the `swap` function, check to ensure the user has approved the Gold contract to take the Silver tokens
+    if (formData.function == "swap") {
+      const check = await checkAllowance(goldContract, address, publicClient);
+      console.log("check:", check);
+      if (check == false) return;
+    }
 
     // Simulate transactions and get the result
     const result = getSimulationResult(toAddress, address, publicClient);
