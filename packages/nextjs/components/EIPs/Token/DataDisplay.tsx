@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import tokenAbi from "../../../abi/eips/Token";
 import { chainData } from "../../../utils/scaffold-eth/networks";
-import { createPublicClient, createWalletClient, custom, encodeFunctionData } from "viem";
+import { createPublicClient, createWalletClient, custom, encodeFunctionData, formatEther } from "viem";
 import { useNetwork } from "wagmi";
 
 interface TokenReturnDataType {
@@ -99,8 +99,12 @@ const DataDisplay: React.FC<DataDisplayProps> = ({ returnData, setReturnData, di
       data: totalSupplyCallData,
       to: goldContract,
     });
-    console.log("silver supply:", silverSupply);
-    console.log("gold supply:", goldSupply);
+    if (!silverSupply?.data || !goldSupply?.data) {
+      displayError("Silver or Gold supply is undefined!");
+      return;
+    }
+    console.log("silver supply:", parseInt(silverSupply.data.toString()));
+    console.log("gold supply:", parseInt(goldSupply.data.toString()));
 
     setReturnData(prevData => ({
       ...prevData,
@@ -149,21 +153,21 @@ const DataDisplay: React.FC<DataDisplayProps> = ({ returnData, setReturnData, di
         <div className="text-gray-400">
           {" "}
           <span className="text-gray-500">Silver balance: </span>
-          {returnData.silverBalance}
+          {formatEther(BigInt(returnData.silverBalance))}
         </div>
         <div className="text-gray-400">
           {" "}
           <span className="text-gray-500">Total supply: </span>
-          {returnData.silverSupply}
+          {formatEther(BigInt(returnData.silverSupply))}
         </div>
         <div className="text-gray-400">
           {" "}
           <span className="text-gray-500">Gold balance: </span>
-          {returnData.goldBalance}
+          {formatEther(BigInt(returnData.goldBalance))}
         </div>
         <div className="text-gray-400">
           <span className="text-gray-500">Total supply: </span>
-          {returnData.goldSupply}
+          {formatEther(BigInt(returnData.goldSupply))}
         </div>
       </div>
       {chain && chain?.id && (
@@ -176,7 +180,12 @@ const DataDisplay: React.FC<DataDisplayProps> = ({ returnData, setReturnData, di
       )}
       {returnData.hash !== "" && (
         <div className="mb-4 text-center text-gray-400 text-2xl">
-          <button className="hover:text-gray-500" title="Click to copy!" onClick={() => copyHexString(true)}>
+          <button
+            className="hover:text-gray-500"
+            disabled={returnData.hash === "Loading..."}
+            title={returnData.hash === "Loading..." ? undefined : "Click to copy!"}
+            onClick={() => copyHexString(true)}
+          >
             {returnData.hash === "Loading..." ? (
               returnData.hash
             ) : (

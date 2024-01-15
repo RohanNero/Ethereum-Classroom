@@ -16,6 +16,9 @@ const Home: NextPage = () => {
     hash: "",
   });
 
+  // Handle the state of tx interaction, if false the transaction will actually be submitted
+  const [useWei, setUseWei] = useState<boolean>(true);
+
   // State variable for storing error messages
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -43,7 +46,13 @@ const Home: NextPage = () => {
       <div className="flex-col mx-auto max-w-screen-xl p-4 font-fantasy text-gray-500">
         <Text />
         <DataDisplay displayError={displayError} returnData={returnData} setReturnData={setReturnData} />
-        <InputForm displayError={displayError} returnData={returnData} setReturnData={setReturnData} />
+        <InputForm
+          useWei={useWei}
+          setUseWei={setUseWei}
+          displayError={displayError}
+          returnData={returnData}
+          setReturnData={setReturnData}
+        />
         <ExtraCodeBlocks />
         {/* Conditionally render the custom error popup */}
         {showErrorPopup && <Error errorMessage={errorMessage} onClose={closeError} />}

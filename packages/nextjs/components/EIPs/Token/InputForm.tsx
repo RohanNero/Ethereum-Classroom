@@ -1,7 +1,7 @@
 import React, { ChangeEvent, ChangeEventHandler, FormEvent, useState } from "react";
 import tokenAbi from "../../../abi/eips/Token";
 import { chainData } from "../../../utils/scaffold-eth/networks";
-import { createPublicClient, createWalletClient, custom, encodeFunctionData } from "viem";
+import { createPublicClient, createWalletClient, custom, encodeFunctionData, parseEther } from "viem";
 import { useNetwork } from "wagmi";
 
 interface TokenReturnDataType {
@@ -13,12 +13,14 @@ interface TokenReturnDataType {
 }
 
 interface DataDisplayProps {
+  useWei: boolean;
+  setUseWei: React.Dispatch<React.SetStateAction<boolean>>;
   returnData: TokenReturnDataType;
   displayError: (errorMessage: string) => void;
   setReturnData: React.Dispatch<React.SetStateAction<TokenReturnDataType>>;
 }
 
-const InputForm: React.FC<DataDisplayProps> = ({ returnData, setReturnData, displayError }) => {
+const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, setReturnData, displayError }) => {
   // Get current chain info
   const { chain } = useNetwork();
 
@@ -38,11 +40,11 @@ const InputForm: React.FC<DataDisplayProps> = ({ returnData, setReturnData, disp
     console.log("name:", name);
     console.log("value:", value);
 
-    // Check if the input for x value is a valid integer
-    if (name == "amount" && !/^\d*$/.test(value)) {
-      console.log(`Invalid input character: ${value} `);
-      return;
-    }
+    // // Check if the input for x value is a valid integer
+    // if (name == "amount" && !/^\d*$/.test(value)) {
+    //   console.log(`Invalid input character: ${value} `);
+    //   return;
+    // }
 
     // Update the state only if it's a valid integer
     setFormData({
@@ -66,9 +68,9 @@ const InputForm: React.FC<DataDisplayProps> = ({ returnData, setReturnData, disp
 
     // Update the state only if it's a valid integer
     setFormData({
+      ...formData,
       from: "",
       to: "",
-      amount: undefined,
       function: value,
     });
   };
@@ -161,12 +163,13 @@ const InputForm: React.FC<DataDisplayProps> = ({ returnData, setReturnData, disp
       }
 
       // Simulate transactions and get the result
-      const result = getSimulationResult(toAddress, address, publicClient);
+      const result = await getSimulationResult(toAddress, address, publicClient);
       console.log("Simulaton result:", result);
 
       // Ensure simulated transaction result is defined
       if (!result) {
         console.log("Simulation result is undefined!");
+        return;
       }
 
       // Send the transaction and get the hash
@@ -206,42 +209,48 @@ const InputForm: React.FC<DataDisplayProps> = ({ returnData, setReturnData, disp
   const getSimulationResult = async (toAddress: string, address: string, publicClient: any) => {
     // Ensure the function name is valid
     const currentFunction = formData.function as "mint" | "approve" | "burn" | "transfer" | "transferFrom" | "swap";
+    const formattedAmount = useWei ? formData.amount : formData.amount ? parseEther(formData.amount) : formData.amount;
 
     if (currentFunction == "mint" || currentFunction == "burn" || currentFunction == "swap") {
-      if (!formData.amount) {
+      if (!formattedAmount) {
         displayError("Amount is undefined!");
         return;
       }
-      const { result } = await publicClient.simulateContract({
-        address: toAddress,
-        abi: tokenAbi,
-        args: [BigInt(formData.amount)] as readonly [bigint],
-        functionName: currentFunction,
-        account: address,
-      });
-      return result;
+      try {
+        const { result } = await publicClient.simulateContract({
+          address: toAddress,
+          abi: tokenAbi,
+          args: [BigInt(formattedAmount)] as readonly [bigint],
+          functionName: currentFunction,
+          account: address,
+        });
+        return result;
+      } catch (e: any) {
+        displayError(e.message);
+        return;
+      }
     } else if (currentFunction == "approve" || currentFunction == "transfer") {
-      if (!formData.to || !formData.amount) {
+      if (!formData.to || !formattedAmount) {
         displayError("To address or amount is undefined!");
         return;
       }
       const { result } = await publicClient.simulateContract({
         address: toAddress,
         abi: tokenAbi,
-        args: [formData.to, BigInt(formData.amount)] as readonly [string, bigint],
+        args: [formData.to, BigInt(formattedAmount)] as readonly [string, bigint],
         functionName: currentFunction,
         account: address,
       });
       return result;
     } else if (currentFunction == "transferFrom") {
-      if (!formData.from || !formData.to || !formData.amount) {
+      if (!formData.from || !formData.to || !formattedAmount) {
         displayError("From/To address or amount is undefined!");
         return;
       }
       const { result } = await publicClient.simulateContract({
         address: toAddress,
         abi: tokenAbi,
-        args: [formData.from, formData.to, BigInt(formData.amount)] as readonly [string, string, bigint],
+        args: [formData.from, formData.to, BigInt(formattedAmount)] as readonly [string, string, bigint],
         functionName: currentFunction,
         account: address,
       });
@@ -262,8 +271,9 @@ const InputForm: React.FC<DataDisplayProps> = ({ returnData, setReturnData, disp
       | "transfer"
       | "transferFrom"
       | "swap";
+    const formattedAmount = useWei ? formData.amount : formData.amount ? parseEther(formData.amount) : formData.amount;
     if (currentFunction == "mint" || currentFunction == "burn" || currentFunction == "swap") {
-      if (!formData.amount) {
+      if (!formattedAmount) {
         displayError("Amount is undefined!");
         return;
       }
@@ -271,7 +281,7 @@ const InputForm: React.FC<DataDisplayProps> = ({ returnData, setReturnData, disp
       const callData = encodeFunctionData({
         abi: tokenAbi,
         functionName: currentFunction,
-        args: [BigInt(formData.amount)] as readonly [bigint],
+        args: [BigInt(formattedAmount)] as readonly [bigint],
       });
       return callData;
     } else if (currentFunction == "allowance") {
@@ -286,25 +296,25 @@ const InputForm: React.FC<DataDisplayProps> = ({ returnData, setReturnData, disp
       });
       return callData;
     } else if (currentFunction == "approve" || currentFunction == "transfer") {
-      if (!formData.to || !formData.amount) {
+      if (!formData.to || !formattedAmount) {
         displayError("To address or amount is undefined!");
         return;
       }
       const callData = encodeFunctionData({
         abi: tokenAbi,
         functionName: currentFunction,
-        args: [formData.to, BigInt(formData.amount)] as readonly [string, bigint],
+        args: [formData.to, BigInt(formattedAmount)] as readonly [string, bigint],
       });
       return callData;
     } else if (currentFunction == "transferFrom") {
-      if (!formData.from || !formData.to || !formData.amount) {
+      if (!formData.from || !formData.to || !formattedAmount) {
         displayError("From/To address or amount is undefined!");
         return;
       }
       const callData = encodeFunctionData({
         abi: tokenAbi,
         functionName: currentFunction,
-        args: [formData.from, formData.to, BigInt(formData.amount)] as readonly [string, string, bigint],
+        args: [formData.from, formData.to, BigInt(formattedAmount)] as readonly [string, string, bigint],
       });
       return callData;
     } else {
@@ -459,6 +469,13 @@ const InputForm: React.FC<DataDisplayProps> = ({ returnData, setReturnData, disp
     }
   };
 
+  // Update simulateOnly state value depending on checkbox status
+  const handleCheckboxChange = () => {
+    // Toggle the state when the checkbox is clicked
+    setUseWei(!useWei);
+    console.log("useWei value:", useWei);
+  };
+
   return (
     <div className="mb-4 text-center text-xl">
       Input Form
@@ -493,6 +510,18 @@ const InputForm: React.FC<DataDisplayProps> = ({ returnData, setReturnData, disp
           >
             Execute
           </button>
+          {/* Checkbox input */}
+          <div className="flex flex-col">
+            <input
+              className="bg-gray-500 mt-2 toggle"
+              type="checkbox"
+              id="theme-toggle"
+              checked={useWei}
+              onChange={handleCheckboxChange}
+              title="Toggle between using WEI or ETH"
+            />
+            {useWei ? "WEI" : "ETH"}
+          </div>
         </div>
       </form>
     </div>
