@@ -84,6 +84,8 @@ const DataDisplay: React.FC<DataDisplayProps> = ({ returnData, setReturnData, di
     });
     if (!silverBalance?.data || !goldBalance?.data) {
       displayError("Silver or Gold balance is undefined!");
+      console.log("silverBalance:", silverBalance);
+      console.log("goldBalance:", goldBalance);
       setReturnData({
         ...returnData,
         silverBalance: 0,

@@ -49,8 +49,8 @@ export const chainData: Record<string, ChainAttributes> = {
       reset: "0x4a5E77782847Ed58d7f59753A52018d2f890C9e3",
     },
     token: {
-      main: "0x9B851840eEa4D455699D60Bf1aCdc9fA8C50187F",
-      swap: "0x92f44167d2AF0c96807713d3B08Cd6ddE4838Fe3",
+      main: "0xfB95837cfd28985206200D7d8F7Bc6ba2580F434",
+      swap: "0x2C898f978D600F13B3dF62Bce000c989c85F08Ad",
     },
   },
   [chains.goerli.id]: {
@@ -72,8 +72,8 @@ export const chainData: Record<string, ChainAttributes> = {
       reset: "0x4a5E77782847Ed58d7f59753A52018d2f890C9e3",
     },
     token: {
-      main: "0x92f44167d2AF0c96807713d3B08Cd6ddE4838Fe3",
-      swap: "0x949768B61234D4a9258143334B6bF07804D28f0e",
+      main: "0xA4415fddD1A2F72f3966944ADd9AD030E27D0c9D",
+      swap: "0x93b7e2F9E77124832ff4464CEaC2e224655E0B67",
     },
   },
   [chains.polygonMumbai.id]: {
@@ -87,8 +87,8 @@ export const chainData: Record<string, ChainAttributes> = {
       reset: "0x14cBf20165eF7853f772A36EE30BFc559a5Bd63e",
     },
     token: {
-      main: "0xD5D8484eE612D01f496F3156F63c03c0EAec6359",
-      swap: "0x0722BCB027F1F65767cb5bc3b343e42f035954D9",
+      main: "0x141560f7D0e641e6E360961F8112878858B86890",
+      swap: "0x1d83f96146C631250a2793Bfe4bc0DeD265E4E50",
     },
   },
   [chains.optimismGoerli.id]: {

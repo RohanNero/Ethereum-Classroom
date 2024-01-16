@@ -11,9 +11,9 @@ const EIPData = [
   // { href: "/book/EIPs/155_SimpleReplayAttackProtection", text: "EIP 155 - Simple Replay Attack Protection" },
   // { href: "/book/EIPs/170_SpuriousDragon", text: "EIP 170 - Spurious Dragon" },
   // { href: "/book/EIPs/173_Ownable", text: "EIP 173 - Ownable" },
-  { href: "/book/EIPs/191_PersonalMessage", text: "EIP 191 - Personal Messages" }, // This
-  { href: "/book/EIPs/712_StructuredMessage", text: "EIP 712 - Structured Messages" }, // And this
-  { href: "/book/EIPs/721_NonFungibleToken", text: "EIP 721 - Non Fungible Token" }, // This too
+  // { href: "/book/EIPs/191_PersonalMessage", text: "EIP 191 - Personal Messages" }, // This
+  // { href: "/book/EIPs/712_StructuredMessage", text: "EIP 712 - Structured Messages" }, // And this
+  // { href: "/book/EIPs/721_NonFungibleToken", text: "EIP 721 - Non Fungible Token" }, // This too
   // { href: "/book/EIPs/1167_Proxy", text: "EIP 1167 - Proxy" },
   // { href: "/book/EIPs/1967_ProxyStorage", text: "EIP 1967 - Proxy Storage" },
   // { href: "/book/EIPs/3156_FlashLoans", text: "EIP 3156 - Flash Loans" },

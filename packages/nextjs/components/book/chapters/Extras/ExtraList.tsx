@@ -3,9 +3,10 @@ import Link from "next/link";
 
 /** Contains all the EIP list item data */
 const ExtraData = [
-  { href: "/blockexplorer", text: "ABI Encoding" },
-  { href: "/blockexplorer", text: "ABI Decoding" },
-  { href: "/blockexplorer", text: "Merkle Trees" },
+  // { href: "/blockexplorer", text: "ABI Encoding" },
+  // { href: "/blockexplorer", text: "ABI Decoding" },
+  // { href: "/blockexplorer", text: "Merkle Trees" },
+  { href: "/", text: "Coming soon!" },
 ];
 
 /** Handles rendering the EIP list items */
