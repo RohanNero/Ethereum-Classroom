@@ -75,11 +75,11 @@ const Text = () => {
           <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#transfer">
             transfer
           </a>{" "}
-          sends `amount` of tokens to the `to` address,&nbsp;
+          sends `amount` of tokens to the inputted address,&nbsp;
           <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#transferFrom">
             transferFrom
           </a>{" "}
-          transfers `amount` of tokens from the `from` address to the `to` address,&nbsp;
+          transfers an inputted amount of tokens from one address to another address.,&nbsp;
           <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#approve">
             approve
           </a>{" "}
@@ -87,10 +87,23 @@ const Text = () => {
           <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#allowance">
             allowance
           </a>{" "}
-          allows you to view the amount of tokens one address may spend on behalf of another address.{" "}
+          allows you to view the amount of tokens one address may spend on behalf of another address. Please note, there
+          are also two events that must be implemented.{" "}
+          <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#transfer-1">
+            Transfer
+          </a>{" "}
+          must be emitted when any tokens are transferred and{" "}
+          <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#approval">
+            Approval
+          </a>{" "}
+          must be emitted when the{" "}
+          <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#approve">
+            approve
+          </a>{" "}
+          function is called.
         </div>
         <div className="mt-4">
-          There are 3 additional functions you can interact with on this page, the first two are commonly used in token
+          There are a few other functions you can interact with on this page, the first two are commonly used in token
           contracts but are not required for the contract to be EIP 20 compliant.{" "}
           <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#mint">
             mint
@@ -100,12 +113,13 @@ const Text = () => {
             {" "}
             burn
           </a>{" "}
-          acts as the inverse of this, allowing anyone to get rid of an amount of tokens they own. Typically, developers{" "}
+          acts as the inverse of this, allowing anyone to render an amount of tokens they own unusable. A common way
+          developers do this is by making their
           <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#burn">
             {" "}
             burn
           </a>{" "}
-          logic will send tokens to an address no one has access to such as&nbsp;
+          logic send tokens to an address no one has access to such as&nbsp;
           <a
             className="text-gray-500 hover:text-gray-400"
             href="https://etherscan.io/address/0x000000000000000000000000000000000000dead"
@@ -119,9 +133,9 @@ const Text = () => {
           >
             swap
           </a>
-          . I&apos;ve created this with the sole purpose of allowing users to get familar with the ERC-20 functions, all
-          it does is allow the user to swap <span className="text-gray-300">Silver</span> to{" "}
-          <span className="text-amber-300">Gold</span> token at a 10:1 ratio.
+          . I&apos;ve created this with the sole purpose of allowing you to get familar with some of the ERC-20
+          functions, all it does is enable you to swap <span className="text-gray-300">Silver</span> for{" "}
+          <span className="text-amber-300">Gold</span> tokens at a 10:1 ratio.
         </div>
       </div>
       <div className="mb-4 text-gray-400 text-xl text-center">
@@ -140,13 +154,16 @@ const Text = () => {
         <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20">
           Official EIP 20 page{" "}
         </a>{" "}
-        to see some additional functions that are optional, such as{" "}
+        to see three additional functions that are optional:{" "}
         <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#name">
-          name
+          name,
         </a>{" "}
-        and{" "}
         <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#symbol">
-          symbol
+          symbol&nbsp;
+        </a>
+        and{" "}
+        <a className="text-gray-500 hover:text-gray-400" href="https://eips.ethereum.org/EIPS/eip-20#decimals">
+          decimals.
         </a>
       </div>{" "}
       <div className="mb-4 w-[60%] mx-auto">

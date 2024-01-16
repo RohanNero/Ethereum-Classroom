@@ -26,8 +26,8 @@ const Text = () => {
         <a className="text-gray-500 hover:text-gray-400" href="https://solidity-by-example.org/call/">
           call
         </a>
-        , the main difference is that the logic in the target contract is executed with the context of the calling
-        contract. Meaning a contract that uses{" "}
+        , the main difference is that the logic in the target contract is executed with the context of the contract that
+        is calling it. Meaning a contract that uses{" "}
         <a className="text-gray-500 hover:text-gray-400" href="https://solidity-by-example.org/delegatecall/">
           delegatecall
         </a>{" "}
