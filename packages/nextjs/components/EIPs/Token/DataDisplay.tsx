@@ -84,6 +84,11 @@ const DataDisplay: React.FC<DataDisplayProps> = ({ returnData, setReturnData, di
     });
     if (!silverBalance?.data || !goldBalance?.data) {
       displayError("Silver or Gold balance is undefined!");
+      setReturnData({
+        ...returnData,
+        silverBalance: 0,
+        goldBalance: 0,
+      });
       return;
     }
 
@@ -101,6 +106,11 @@ const DataDisplay: React.FC<DataDisplayProps> = ({ returnData, setReturnData, di
     });
     if (!silverSupply?.data || !goldSupply?.data) {
       displayError("Silver or Gold supply is undefined!");
+      setReturnData({
+        ...returnData,
+        silverSupply: 0,
+        goldSupply: 0,
+      });
       return;
     }
     console.log("silver supply:", parseInt(silverSupply.data.toString()));

@@ -24,7 +24,8 @@ export type ChainAttributes = {
 
 // To allow your dapp to live on another chain, simply add its chainId to this array.
 // Entire list of chains: https://github.com/wevm/viem/blob/main/src/chains/index.ts
-export const includedChains = [1, 11155111, 137, 80001, 100, 43114, 43113, 5];
+export const includedChains = [11155111, 137, 80001];
+// export const includedChains = [1, 11155111, 137, 80001, 100, 43114, 43113, 5];
 
 // If adding a chain not listed below, provide a hex string color and a pricefeed address
 // from: https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&page=1
@@ -40,6 +41,17 @@ export const chainData: Record<string, ChainAttributes> = {
   [chains.sepolia.id]: {
     color: "#5f4bb6",
     priceFeed: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // ETH (On Ethereum)
+    delegatecall: {
+      main: "0xe384743171E4338AcA441309Cf285A2E9bBD0fE2",
+      add: "0xbEfF3E3E4062EEdF6cE56283BE3E523dC8aF5867",
+      sub: "0x1948123157ce47CBCF338D667Df716bC7EE339Ec",
+      mul: "0x8E0F8DF754663250F4CE8A0e4bD5e332cA0BEdc8",
+      reset: "0x4a5E77782847Ed58d7f59753A52018d2f890C9e3",
+    },
+    token: {
+      main: "0x9B851840eEa4D455699D60Bf1aCdc9fA8C50187F",
+      swap: "0x92f44167d2AF0c96807713d3B08Cd6ddE4838Fe3",
+    },
   },
   [chains.goerli.id]: {
     color: "#0975F6",
@@ -55,9 +67,13 @@ export const chainData: Record<string, ChainAttributes> = {
     delegatecall: {
       main: "0xe384743171E4338AcA441309Cf285A2E9bBD0fE2",
       add: "0xbEfF3E3E4062EEdF6cE56283BE3E523dC8aF5867",
-      sub: "0xB6D64577810E7CBe38D4AC36A410a2da8aE52B2A",
-      mul: "0xa00e6BBFDDC407Fc5F82f5D8609aaAafaBDa1c37",
-      reset: "0xbc76e82B992b7be3f906BAa15eB582Ea31d318C0",
+      sub: "0x1948123157ce47CBCF338D667Df716bC7EE339Ec",
+      mul: "0x8E0F8DF754663250F4CE8A0e4bD5e332cA0BEdc8",
+      reset: "0x4a5E77782847Ed58d7f59753A52018d2f890C9e3",
+    },
+    token: {
+      main: "0x92f44167d2AF0c96807713d3B08Cd6ddE4838Fe3",
+      swap: "0x949768B61234D4a9258143334B6bF07804D28f0e",
     },
   },
   [chains.polygonMumbai.id]: {

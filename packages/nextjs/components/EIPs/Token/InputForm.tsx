@@ -169,6 +169,10 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
       // Ensure simulated transaction result is defined
       if (!result) {
         console.log("Simulation result is undefined!");
+      }
+
+      if (result == 0) {
+        console.log("Error with transaction simulation!");
         return;
       }
 
@@ -214,7 +218,7 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
     if (currentFunction == "mint" || currentFunction == "burn" || currentFunction == "swap") {
       if (!formattedAmount) {
         displayError("Amount is undefined!");
-        return;
+        return 0;
       }
       try {
         const { result } = await publicClient.simulateContract({
@@ -227,12 +231,12 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
         return result;
       } catch (e: any) {
         displayError(e.message);
-        return;
+        return 0;
       }
     } else if (currentFunction == "approve" || currentFunction == "transfer") {
       if (!formData.to || !formattedAmount) {
         displayError("To address or amount is undefined!");
-        return;
+        return 0;
       }
       const { result } = await publicClient.simulateContract({
         address: toAddress,
@@ -245,7 +249,7 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
     } else if (currentFunction == "transferFrom") {
       if (!formData.from || !formData.to || !formattedAmount) {
         displayError("From/To address or amount is undefined!");
-        return;
+        return 0;
       }
       const { result } = await publicClient.simulateContract({
         address: toAddress,
@@ -256,7 +260,7 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
       });
       return result;
     } else {
-      return undefined;
+      return 0;
     }
   };
 
