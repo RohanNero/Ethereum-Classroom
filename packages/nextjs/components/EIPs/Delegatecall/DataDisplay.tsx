@@ -91,7 +91,12 @@ const DataDisplay: React.FC<DataDisplayProps> = ({ returnData, displayError }) =
       </div>
       {returnData.executedHash !== "" && (
         <div className="mb-4 text-center text-gray-400 text-2xl">
-          <button className="hover:text-gray-500" title="Click to copy!" onClick={copyHash}>
+          <button
+            className="hover:text-gray-500"
+            disabled={returnData.executedHash === "Loading..."}
+            title={returnData.executedHash === "Loading..." ? undefined : "Click to copy!"}
+            onClick={copyHash}
+          >
             {returnData.executedHash == "Loading..." ? returnData.executedHash : `Tx hash: ${returnData.executedHash}`}
           </button>
         </div>
