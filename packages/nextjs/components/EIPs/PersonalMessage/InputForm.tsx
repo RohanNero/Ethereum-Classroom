@@ -375,11 +375,7 @@ const InputForm: React.FC<DataDisplayProps> = ({ displayError, returnData, setRe
 
   // Checks to see if form submit button should be disabled
   const checkDisabled = () => {
-    if (formData.function == "sign") {
-      if (formData.message == "") {
-        return true;
-      }
-    } else if (formData.function == "hash") {
+    if (formData.function == "hash") {
       if (formData.message == "" || formData.amount == "") {
         return true;
       }
