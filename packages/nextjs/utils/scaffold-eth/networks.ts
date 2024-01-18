@@ -20,6 +20,9 @@ export type ChainAttributes = {
     main: string;
     swap: string;
   };
+  personalMessage?: {
+    main: string;
+  };
 };
 
 // To allow your dapp to live on another chain, simply add its chainId to this array.
@@ -52,6 +55,9 @@ export const chainData: Record<string, ChainAttributes> = {
       main: "0xfB95837cfd28985206200D7d8F7Bc6ba2580F434",
       swap: "0x2C898f978D600F13B3dF62Bce000c989c85F08Ad",
     },
+    personalMessage: {
+      main: "0x80DEF146ABe71b526C716341E4c5ECDb8B44c264",
+    },
   },
   [chains.goerli.id]: {
     color: "#0975F6",
@@ -75,6 +81,9 @@ export const chainData: Record<string, ChainAttributes> = {
       main: "0xA4415fddD1A2F72f3966944ADd9AD030E27D0c9D",
       swap: "0x93b7e2F9E77124832ff4464CEaC2e224655E0B67",
     },
+    personalMessage: {
+      main: "0x75d3BC02b950D69057F12d003cf9f7e6c5aDe1C3",
+    },
   },
   [chains.polygonMumbai.id]: {
     color: "#92D9FA",
@@ -89,6 +98,9 @@ export const chainData: Record<string, ChainAttributes> = {
     token: {
       main: "0x141560f7D0e641e6E360961F8112878858B86890",
       swap: "0x1d83f96146C631250a2793Bfe4bc0DeD265E4E50",
+    },
+    personalMessage: {
+      main: "0xC9772f1f43FbD8dcC20880eb795998274F85BAF7",
     },
   },
   [chains.optimismGoerli.id]: {
