@@ -23,6 +23,9 @@ export type ChainAttributes = {
   personalMessage?: {
     main: string;
   };
+  structuredMessage?: {
+    main: string;
+  };
 };
 
 // To allow your dapp to live on another chain, simply add its chainId to this array.
@@ -58,6 +61,9 @@ export const chainData: Record<string, ChainAttributes> = {
     personalMessage: {
       main: "0x80DEF146ABe71b526C716341E4c5ECDb8B44c264",
     },
+    structuredMessage: {
+      main: "0xdac22091c4b4B2e6D2C073e8e561405Fe38d82dE",
+    },
   },
   [chains.goerli.id]: {
     color: "#0975F6",
@@ -84,6 +90,9 @@ export const chainData: Record<string, ChainAttributes> = {
     personalMessage: {
       main: "0x75d3BC02b950D69057F12d003cf9f7e6c5aDe1C3",
     },
+    structuredMessage: {
+      main: "0x8CB3D0d3f7F5F5Aa31e4f8bC1358977264770A46",
+    },
   },
   [chains.polygonMumbai.id]: {
     color: "#92D9FA",
@@ -101,6 +110,9 @@ export const chainData: Record<string, ChainAttributes> = {
     },
     personalMessage: {
       main: "0xC9772f1f43FbD8dcC20880eb795998274F85BAF7",
+    },
+    structuredMessage: {
+      main: "0x1cc01056Db7815a35c031a94EeA62CCbD5bc34fd",
     },
   },
   [chains.optimismGoerli.id]: {

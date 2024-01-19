@@ -4,16 +4,16 @@ import Link from "next/link";
 /** Contains all the EIP list item data */
 const EIPData = [
   // { href: "/book/EIPs/6_Suicide", text: "EIP 6 - Suicide" },
-  { href: "/book/EIPs/7_Delegatecall", text: "EIP 7 - Delegatecall" }, // Start with this
-  { href: "/book/EIPs/20_Token", text: "EIP 20 - Token" }, // With this
+  { href: "/book/EIPs/7_Delegatecall", text: "EIP 7 - Delegatecall" },
+  { href: "/book/EIPs/20_Token", text: "EIP 20 - Token" },
   // { href: "/book/EIPs/50_Mixed-CaseChecksumAddressEncoding", text: "EIP 50 - Mixed-Case Checksum Address Encoding" },
   // { href: "/book/EIPs/137_EthereumDomainNameService", text: "EIP 137 - Ethereum Domain Name Service" },
   // { href: "/book/EIPs/155_SimpleReplayAttackProtection", text: "EIP 155 - Simple Replay Attack Protection" },
   // { href: "/book/EIPs/170_SpuriousDragon", text: "EIP 170 - Spurious Dragon" },
   // { href: "/book/EIPs/173_Ownable", text: "EIP 173 - Ownable" }, // This standard is stale and requires 165 currently which isn't commonly used
-  { href: "/book/EIPs/191_PersonalMessage", text: "EIP 191 - Personal Messages" }, // This
-  // { href: "/book/EIPs/712_StructuredMessage", text: "EIP 712 - Structured Messages" }, // And this
-  // { href: "/book/EIPs/721_NonFungibleToken", text: "EIP 721 - Non Fungible Token" }, // This too
+  { href: "/book/EIPs/191_PersonalMessage", text: "EIP 191 - Personal Messages" },
+  { href: "/book/EIPs/712_StructuredMessage", text: "EIP 712 - Structured Messages" },
+  // { href: "/book/EIPs/721_NonFungibleToken", text: "EIP 721 - Non Fungible Token" },
   // { href: "/book/EIPs/1167_Proxy", text: "EIP 1167 - Proxy" },
   // { href: "/book/EIPs/1967_ProxyStorage", text: "EIP 1967 - Proxy Storage" },
   // { href: "/book/EIPs/3156_FlashLoans", text: "EIP 3156 - Flash Loans" },
