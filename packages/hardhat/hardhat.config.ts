@@ -18,7 +18,14 @@ const polyscanApiKey = process.env.POLYSCAN_API_KEY || "DNXJA8RX2Q3VZ4URQIWP7Z68
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.17",
+    compilers: [
+      {
+        version: "0.8.18",
+      },
+      {
+        version: "0.8.17",
+      },
+    ],
     settings: {
       optimizer: {
         enabled: true,
@@ -27,6 +34,16 @@ const config: HardhatUserConfig = {
       },
     },
   },
+  // solidity: {
+  //   version: "0.8.17",
+  //   settings: {
+  //     optimizer: {
+  //       enabled: true,
+  //       // https://docs.soliditylang.org/en/latest/using-the-compiler.html#optimizer-options
+  //       runs: 200,
+  //     },
+  //   },
+  // },
   defaultNetwork: "localhost",
   namedAccounts: {
     deployer: {
@@ -38,16 +55,19 @@ const config: HardhatUserConfig = {
     // View the networks that are pre-configured.
     // If the network you are looking for is not here you can add new network settings
     hardhat: {
+      chainId: 1337,
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKey}`,
         enabled: process.env.MAINNET_FORKING_ENABLED === "true",
       },
     },
     mainnet: {
+      chainId: 1,
       url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKey}`,
       accounts: [deployerPrivateKey],
     },
     sepolia: {
+      chainId: 11155111,
       url: `https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`,
       accounts: [deployerPrivateKey],
     },
@@ -72,10 +92,12 @@ const config: HardhatUserConfig = {
       accounts: [deployerPrivateKey],
     },
     polygon: {
+      chainId: 137,
       url: `https://polygon-mainnet.g.alchemy.com/v2/${providerApiKey}`,
       accounts: [deployerPrivateKey],
     },
     polygonMumbai: {
+      chainId: 80001,
       url: `https://polygon-mumbai.g.alchemy.com/v2/${providerApiKey}`,
       accounts: [deployerPrivateKey],
     },

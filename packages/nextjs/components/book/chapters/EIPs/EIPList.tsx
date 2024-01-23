@@ -13,7 +13,7 @@ const EIPData = [
   // { href: "/book/EIPs/173_Ownable", text: "EIP 173 - Ownable" }, // This standard is stale and requires 165 currently which isn't commonly used
   { href: "/book/EIPs/191_PersonalMessage", text: "EIP 191 - Personal Messages" },
   { href: "/book/EIPs/712_StructuredMessage", text: "EIP 712 - Structured Messages" },
-  // { href: "/book/EIPs/721_NonFungibleToken", text: "EIP 721 - Non Fungible Token" },
+  { href: "/book/EIPs/721_NFT", text: "EIP 721 - Non Fungible Token" },
   // { href: "/book/EIPs/1167_Proxy", text: "EIP 1167 - Proxy" },
   // { href: "/book/EIPs/1967_ProxyStorage", text: "EIP 1967 - Proxy Storage" },
   // { href: "/book/EIPs/3156_FlashLoans", text: "EIP 3156 - Flash Loans" },

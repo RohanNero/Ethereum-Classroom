@@ -26,6 +26,9 @@ export type ChainAttributes = {
   structuredMessage?: {
     main: string;
   };
+  nft?: {
+    main: string;
+  };
 };
 
 // To allow your dapp to live on another chain, simply add its chainId to this array.
@@ -113,6 +116,9 @@ export const chainData: Record<string, ChainAttributes> = {
     },
     structuredMessage: {
       main: "0x1cc01056Db7815a35c031a94EeA62CCbD5bc34fd",
+    },
+    nft: {
+      main: "0x38469cC60E5d7528edC740E1D749EAe60422bF41",
     },
   },
   [chains.optimismGoerli.id]: {
