@@ -67,6 +67,9 @@ export const chainData: Record<string, ChainAttributes> = {
     structuredMessage: {
       main: "0xdac22091c4b4B2e6D2C073e8e561405Fe38d82dE",
     },
+    nft: {
+      main: "0x75d3BC02b950D69057F12d003cf9f7e6c5aDe1C3",
+    },
   },
   [chains.goerli.id]: {
     color: "#0975F6",
@@ -96,6 +99,9 @@ export const chainData: Record<string, ChainAttributes> = {
     structuredMessage: {
       main: "0x8CB3D0d3f7F5F5Aa31e4f8bC1358977264770A46",
     },
+    nft: {
+      main: "0x00ba852bfCC05Cb41dc6211F4dBDE42Fef28D846",
+    },
   },
   [chains.polygonMumbai.id]: {
     color: "#92D9FA",
@@ -118,7 +124,7 @@ export const chainData: Record<string, ChainAttributes> = {
       main: "0x1cc01056Db7815a35c031a94EeA62CCbD5bc34fd",
     },
     nft: {
-      main: "0x38469cC60E5d7528edC740E1D749EAe60422bF41",
+      main: "0x67f6a8090eee018cBC5F8908f4fdc8D96a617592",
     },
   },
   [chains.optimismGoerli.id]: {

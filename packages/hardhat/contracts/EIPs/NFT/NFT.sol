@@ -231,6 +231,7 @@ contract NFT is IERC721, IERC721Metadata {
         uint key = psuedoRandomNum % 3;
         tokenURIs[_mintCounter] = _UriOptions[key];
         _mintCounter++;
+        return _mintCounter - 1;
     }
 
     /**@notice burns the token */
