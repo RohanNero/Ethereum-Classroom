@@ -2,7 +2,7 @@ import React, { ChangeEvent, ChangeEventHandler, FormEvent, useState } from "rea
 import nftAbi from "../../../abi/eips/NFT";
 import tokenAbi from "../../../abi/eips/Token";
 import { chainData } from "../../../utils/scaffold-eth/networks";
-import { createPublicClient, createWalletClient, custom, encodeFunctionData, parseEther } from "viem";
+import { createPublicClient, createWalletClient, custom, parseEther } from "viem";
 import { useNetwork } from "wagmi";
 
 interface TokenReturnDataType {
@@ -106,20 +106,15 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
         transport: custom(window.ethereum),
         chain: chain,
       });
-
-      // Ensure client objects were initialized correctly and are defined
       if (!walletClient || !publicClient) {
         console.log("Client is undefined!");
         return;
       }
-      // Get the user's addresses
       const [address] = await walletClient.requestAddresses();
 
       // Get the Silver and Gold contract addresses from our chainData object
       const nftContract = chainData[chain?.id]?.nft?.main;
       const goldContract = chainData[chain?.id]?.token?.swap;
-
-      // ENsure contract addresses are defined
       if (!nftContract || !goldContract) {
         displayError("Silver or Gold contract is undefined, try another chain!");
         return;
@@ -129,38 +124,22 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
       const toAddress = formData.function == "approve" || formData.function == "allowance" ? goldContract : nftContract;
       console.log("contract:", toAddress);
 
-      // Encode the function data to be sent
-      const callData = getCalldata();
-      console.log("callData:", callData);
-
-      // Ensure callData is defined
-      if (!callData) {
-        displayError("Calldata is undefined!");
-        return;
-      }
-
       // If calling the `swap` function, check to ensure the user has approved the Gold contract to take the Silver tokens
-      if (formData.function == "swap") {
+      if (formData.function == "buy") {
         const check = await checkAllowance(nftContract, goldContract, address, publicClient);
         console.log("check:", check);
         if (check == false) return;
       }
 
-      // Simulate transactions and get the result
-      const result = await getSimulationResult(toAddress, address, publicClient);
-      console.log("Simulaton result:", result);
-
-      // Ensure simulated transaction result is defined
-      if (result === undefined) {
+      // Simulate transactions and get the request
+      const request = await getSimulationRequest(toAddress, address, publicClient);
+      console.log("Simulaton result:", request);
+      if (request === undefined) {
         console.log("Simulation result is undefined!");
       }
 
-      // Send the transaction and get the hash
-      const hash = await walletClient.sendTransaction({
-        account: address,
-        to: toAddress,
-        data: callData,
-      });
+      console.log("Writing to contract...");
+      const hash = await walletClient.writeContract(request);
       console.log("hash:", hash);
 
       // Set hash state to loading state
@@ -169,11 +148,9 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
         hash: "Loading...",
       }));
 
-      // Wait for transaction to be completed and get the receipt
       const transaction = await publicClient.waitForTransactionReceipt({ hash: hash });
       console.log("tx receipt:", transaction);
 
-      // Set the hash value from our transaction
       setReturnData(prevData => ({
         ...prevData,
         hash: hash,
@@ -189,7 +166,7 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
   };
 
   // Get result from a simulated transaction
-  const getSimulationResult = async (toAddress: string, address: string, publicClient: any) => {
+  const getSimulationRequest = async (toAddress: string, address: string, publicClient: any) => {
     // Ensure the function name is valid
     const currentFunction = formData.function as "approve" | "burn" | "transferFrom" | "buy";
     const formattedAmount = useWei ? formData.amount : formData.amount ? parseEther(formData.amount) : formData.amount;
@@ -201,14 +178,14 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
         return 0;
       }
       try {
-        const { result } = await publicClient.simulateContract({
+        const { request } = await publicClient.simulateContract({
           address: toAddress,
           abi: nftAbi,
           args: [BigInt(formData.id)] as readonly [bigint],
           functionName: currentFunction,
           account: address,
         });
-        return result;
+        return request;
       } catch (e: any) {
         displayError(e.message);
         return 0;
@@ -218,129 +195,66 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
         displayError("To address or amount is undefined!");
         return 0;
       }
-      const { result } = await publicClient.simulateContract({
+      const { request } = await publicClient.simulateContract({
         address: toAddress,
         abi: tokenAbi,
         args: [formData.to, BigInt(formattedAmount)] as readonly [string, bigint],
         functionName: currentFunction,
         account: address,
       });
-      return result;
+      return request;
     } else if (currentFunction == "transferFrom") {
       if (!formData.from || !formData.to || !formData.id) {
         displayError("From/To address or amount is undefined!");
         return 0;
       }
-      const { result } = await publicClient.simulateContract({
+      const { request } = await publicClient.simulateContract({
         address: toAddress,
         abi: nftAbi,
         args: [formData.from, formData.to, BigInt(formData.id)] as readonly [string, string, bigint],
         functionName: currentFunction,
         account: address,
       });
-      return result;
+      return request;
     } else if (currentFunction == "buy") {
-      const { result } = await publicClient.simulateContract({
+      const { request } = await publicClient.simulateContract({
         address: toAddress,
         abi: nftAbi,
         functionName: currentFunction,
         account: address,
       });
-      console.log("result:", result);
-      return result;
+      console.log("result:", request);
+      return request;
     } else {
       return undefined;
     }
   };
 
-  // Get calldata for sending a transaction
-  const getCalldata = () => {
-    // Ensure the function name is valid
-    const currentFunction = formData.function as "allowance" | "approve" | "burn" | "transferFrom" | "buy";
-    const formattedAmount = useWei ? formData.amount : formData.amount ? parseEther(formData.amount) : formData.amount;
-    if (currentFunction == "burn") {
-      // console.log("tokenId:", formData.id);
-      const callData = encodeFunctionData({
-        abi: nftAbi,
-        functionName: currentFunction,
-        args: [BigInt(formData.id)] as readonly [bigint],
-      });
-      return callData;
-    } else if (currentFunction == "allowance") {
-      if (!formData.from || !formData.to) {
-        displayError("From or To address is undefined!");
-        return;
-      }
-      const callData = encodeFunctionData({
-        abi: tokenAbi,
-        functionName: currentFunction,
-        args: [formData.from, formData.to] as readonly [string, string],
-      });
-      return callData;
-    } else if (currentFunction == "approve") {
-      if (!formData.to || !formattedAmount) {
-        displayError("To address or amount is undefined!");
-        return;
-      }
-      const callData = encodeFunctionData({
-        abi: tokenAbi,
-        functionName: currentFunction,
-        args: [formData.to, BigInt(formattedAmount)] as readonly [string, bigint],
-      });
-      return callData;
-    } else if (currentFunction == "transferFrom") {
-      if (!formData.from || !formData.to || !formData.id) {
-        displayError("From/To address or amount is undefined!");
-        return;
-      }
-      const callData = encodeFunctionData({
-        abi: nftAbi,
-        functionName: currentFunction,
-        args: [formData.from, formData.to, BigInt(formData.id)] as readonly [string, string, bigint],
-      });
-      return callData;
-    } else if (currentFunction == "buy") {
-      const callData = encodeFunctionData({
-        abi: nftAbi,
-        functionName: currentFunction,
-      });
-      return callData;
-    } else {
-      return undefined;
-    }
-  };
-
-  // Gets the Gold contract's allowance to spend the user's funds
+  // Gets the NFT contract's allowance to spend the user's funds
   const getAllowance = async (nftContract: string, goldContract: string, address: string, publicClient: any) => {
     if (!goldContract || !address) {
       displayError("One of the allowance input parameters are undefined!");
       return;
     }
-
+    console.log("nftContract:", nftContract);
     console.log("owner addr:", address);
     console.log("gold contract:", goldContract);
 
-    // Encode the allowance calldata
-    const callData = encodeFunctionData({
+    const allowance = await publicClient.readContract({
+      address: goldContract,
       abi: tokenAbi,
-      args: [address, nftContract],
       functionName: "allowance",
-    });
-
-    // View amount of Gold tokens the NFT contract can spend on behalf of the user
-    const allowance = await publicClient.call({
-      data: callData,
-      to: nftContract,
+      args: [address, nftContract],
     });
     console.log("allowance:", allowance);
-    if (!allowance?.data) {
+    if (!allowance) {
       return undefined;
     } else {
-      return allowance.data;
+      return allowance;
     }
   };
 
-  // Checks to ensure GoldContract's allowance to spend user tokens is larger than the amount being swapped
+  // Checks to ensure NftContract's allowance to spend user tokens is larger than the amount being swapped
   const checkAllowance = async (nftContract: string, goldContract: string, address: string, publicClient: any) => {
     // Ensure the user has approved the Gold/SimpleSwap contract to take the funds
     const allowance = await getAllowance(nftContract, goldContract, address, publicClient);
@@ -348,16 +262,17 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
     const amount = formData.amount;
     console.log("amount:", amount);
 
-    if (!amount || !allowance) {
-      displayError("Amount or allowance is undefined!");
+    if (!allowance) {
+      displayError("Allowance is undefined!");
       return false;
     }
-
-    if (parseInt(amount) > parseInt(allowance)) {
+    // console.log("One Token in Wei:", 1e18);
+    // console.log("Allowance in Wei:", allowance);
+    if (1e18 > parseInt(allowance)) {
       displayError(
         `Must approve Gold/SimpleSwap contract to transferFrom Silver tokens! Allowance: ${parseInt(
           allowance,
-        )} Amount: ${parseInt(amount)}`,
+        )} Amount: ${1e18}`,
       );
       return false;
     } else {

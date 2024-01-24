@@ -1,7 +1,7 @@
 import React, { ChangeEvent, ChangeEventHandler, FormEvent, useState } from "react";
 import tokenAbi from "../../../abi/eips/Token";
 import { chainData } from "../../../utils/scaffold-eth/networks";
-import { createPublicClient, createWalletClient, custom, encodeFunctionData, parseEther } from "viem";
+import { createPublicClient, createWalletClient, custom, parseEther } from "viem";
 import { useNetwork } from "wagmi";
 
 interface TokenReturnDataType {
@@ -75,29 +75,6 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
     });
   };
 
-  // Checks to ensure that the submit button should be clickable instead of disabled
-  const checkDisabled = () => {
-    const currentFunction = formData.function;
-    if (currentFunction == "mint" || currentFunction == "burn" || currentFunction == "swap") {
-      if (!formData.amount) {
-        return true;
-      }
-    } else if (currentFunction == "allowance") {
-      if (!formData.from || !formData.to) {
-        return true;
-      }
-    } else if (currentFunction == "transfer" || currentFunction == "approve") {
-      if (!formData.to || !formData.amount) {
-        return true;
-      }
-    } else if (currentFunction == "transferFrom") {
-      if (!formData.from || !formData.to || !formData.amount) {
-        return true;
-      }
-    }
-    return false;
-  };
-
   // Calls a contract with delegatecall when form is submitted
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -145,16 +122,6 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
       const toAddress = formData.function == "swap" ? goldContract : silverContract;
       console.log("contract:", toAddress);
 
-      // Encode the function data to be sent
-      const callData = getCalldata();
-      console.log("callData:", callData);
-
-      // Ensure callData is defined
-      if (!callData) {
-        displayError("Calldata is undefined!");
-        return;
-      }
-
       // If calling the `swap` function, check to ensure the user has approved the Gold contract to take the Silver tokens
       if (formData.function == "swap") {
         const check = await checkAllowance(silverContract, goldContract, address, publicClient);
@@ -163,25 +130,21 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
       }
 
       // Simulate transactions and get the result
-      const result = await getSimulationResult(toAddress, address, publicClient);
-      console.log("Simulaton result:", result);
+      const request = await getSimulationRequest(toAddress, address, publicClient);
+      console.log("Simulaton result:", request);
 
       // Ensure simulated transaction result is defined
-      if (!result) {
+      if (!request) {
         console.log("Simulation result is undefined!");
-      }
-
-      if (result == 0) {
-        console.log("Error with transaction simulation!");
+        if (formData.function == "burn") {
+          displayError("Error simulating transaction, ensure you have sufficient balance to burn the tokens!");
+        } else {
+          displayError("Simulation result is undefined!");
+        }
         return;
       }
 
-      // Send the transaction and get the hash
-      const hash = await walletClient.sendTransaction({
-        account: address,
-        to: toAddress,
-        data: callData,
-      });
+      const hash = await walletClient.writeContract(request);
       console.log("hash:", hash);
 
       // Set hash state to loading state
@@ -209,8 +172,15 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
     console.log("returnData:", returnData);
   };
 
+  // Update simulateOnly state value depending on checkbox status
+  const handleCheckboxChange = () => {
+    // Toggle the state when the checkbox is clicked
+    setUseWei(!useWei);
+    console.log("useWei value:", useWei);
+  };
+
   // Get result from a simulated transaction
-  const getSimulationResult = async (toAddress: string, address: string, publicClient: any) => {
+  const getSimulationRequest = async (toAddress: string, address: string, publicClient: any) => {
     // Ensure the function name is valid
     const currentFunction = formData.function as "mint" | "approve" | "burn" | "transfer" | "transferFrom" | "swap";
     const formattedAmount = useWei ? formData.amount : formData.amount ? parseEther(formData.amount) : formData.amount;
@@ -220,15 +190,21 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
         displayError("Amount is undefined!");
         return 0;
       }
+      console.log("silver:", returnData.silverBalance);
+      console.log("amount:", formattedAmount);
+      if (currentFunction == "burn" && returnData.silverBalance < formattedAmount) {
+        console.log("Insufficient Balance!");
+        return undefined;
+      }
       try {
-        const { result } = await publicClient.simulateContract({
+        const { request } = await publicClient.simulateContract({
           address: toAddress,
           abi: tokenAbi,
           args: [BigInt(formattedAmount)] as readonly [bigint],
           functionName: currentFunction,
           account: address,
         });
-        return result;
+        return request;
       } catch (e: any) {
         displayError(e.message);
         return 0;
@@ -238,91 +214,29 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
         displayError("To address or amount is undefined!");
         return 0;
       }
-      const { result } = await publicClient.simulateContract({
+      const { request } = await publicClient.simulateContract({
         address: toAddress,
         abi: tokenAbi,
         args: [formData.to, BigInt(formattedAmount)] as readonly [string, bigint],
         functionName: currentFunction,
         account: address,
       });
-      return result;
+      return request;
     } else if (currentFunction == "transferFrom") {
       if (!formData.from || !formData.to || !formattedAmount) {
         displayError("From/To address or amount is undefined!");
         return 0;
       }
-      const { result } = await publicClient.simulateContract({
+      const { request } = await publicClient.simulateContract({
         address: toAddress,
         abi: tokenAbi,
         args: [formData.from, formData.to, BigInt(formattedAmount)] as readonly [string, string, bigint],
         functionName: currentFunction,
         account: address,
       });
-      return result;
+      return request;
     } else {
       return 0;
-    }
-  };
-
-  // Get calldata for sending a transaction
-  const getCalldata = () => {
-    // Ensure the function name is valid
-    const currentFunction = formData.function as
-      | "mint"
-      | "allowance"
-      | "approve"
-      | "burn"
-      | "transfer"
-      | "transferFrom"
-      | "swap";
-    const formattedAmount = useWei ? formData.amount : formData.amount ? parseEther(formData.amount) : formData.amount;
-    if (currentFunction == "mint" || currentFunction == "burn" || currentFunction == "swap") {
-      if (!formattedAmount) {
-        displayError("Amount is undefined!");
-        return;
-      }
-      console.log("code reached");
-      const callData = encodeFunctionData({
-        abi: tokenAbi,
-        functionName: currentFunction,
-        args: [BigInt(formattedAmount)] as readonly [bigint],
-      });
-      return callData;
-    } else if (currentFunction == "allowance") {
-      if (!formData.from || !formData.to) {
-        displayError("From or To address is undefined!");
-        return;
-      }
-      const callData = encodeFunctionData({
-        abi: tokenAbi,
-        functionName: currentFunction,
-        args: [formData.from, formData.to] as readonly [string, string],
-      });
-      return callData;
-    } else if (currentFunction == "approve" || currentFunction == "transfer") {
-      if (!formData.to || !formattedAmount) {
-        displayError("To address or amount is undefined!");
-        return;
-      }
-      const callData = encodeFunctionData({
-        abi: tokenAbi,
-        functionName: currentFunction,
-        args: [formData.to, BigInt(formattedAmount)] as readonly [string, bigint],
-      });
-      return callData;
-    } else if (currentFunction == "transferFrom") {
-      if (!formData.from || !formData.to || !formattedAmount) {
-        displayError("From/To address or amount is undefined!");
-        return;
-      }
-      const callData = encodeFunctionData({
-        abi: tokenAbi,
-        functionName: currentFunction,
-        args: [formData.from, formData.to, BigInt(formattedAmount)] as readonly [string, string, bigint],
-      });
-      return callData;
-    } else {
-      return undefined;
     }
   };
 
@@ -335,24 +249,18 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
 
     console.log("owner addr:", address);
     console.log("gold contract:", goldContract);
-
-    // Encode the allowance calldata
-    const callData = encodeFunctionData({
+    const allowance = await publicClient.readContract({
       abi: tokenAbi,
       args: [address, goldContract],
       functionName: "allowance",
+      address: silverContract,
     });
 
-    // View Silver and Gold total supplies
-    const allowance = await publicClient.call({
-      data: callData,
-      to: silverContract,
-    });
     console.log("allowance:", allowance);
-    if (!allowance?.data) {
+    if (!allowance) {
       return undefined;
     } else {
-      return allowance.data;
+      return allowance;
     }
   };
 
@@ -379,6 +287,29 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
     } else {
       return true;
     }
+  };
+
+  // Checks to ensure that the submit button should be clickable instead of disabled
+  const checkDisabled = () => {
+    const currentFunction = formData.function;
+    if (currentFunction == "mint" || currentFunction == "burn" || currentFunction == "swap") {
+      if (!formData.amount) {
+        return true;
+      }
+    } else if (currentFunction == "allowance") {
+      if (!formData.from || !formData.to) {
+        return true;
+      }
+    } else if (currentFunction == "transfer" || currentFunction == "approve") {
+      if (!formData.to || !formData.amount) {
+        return true;
+      }
+    } else if (currentFunction == "transferFrom") {
+      if (!formData.from || !formData.to || !formData.amount) {
+        return true;
+      }
+    }
+    return false;
   };
 
   // Function to handle displaying the input depending on what function is selected
@@ -471,13 +402,6 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
         />
       );
     }
-  };
-
-  // Update simulateOnly state value depending on checkbox status
-  const handleCheckboxChange = () => {
-    // Toggle the state when the checkbox is clicked
-    setUseWei(!useWei);
-    console.log("useWei value:", useWei);
   };
 
   return (
