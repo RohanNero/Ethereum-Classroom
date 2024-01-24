@@ -407,19 +407,18 @@ const InputForm: React.FC<DataDisplayProps> = ({ useWei, setUseWei, returnData, 
           value={formData.function}
           onChange={handleSelectChange}
         >
-          {/* <option value="transfer">Transfer</option> */}
+          <option className="bg-gray-500 text-gray-300" value="buy">
+            Buy - Non ERC-721
+          </option>
+          <option className="bg-gray-500 text-gray-300" value="burn">
+            Burn - Non ERC-721
+          </option>
           <option value="transferFrom">TransferFrom</option>
           <option className="bg-gray-400 text-gray-600" value="approve">
             Approve - ERC-20
           </option>
           <option className="bg-gray-400 text-gray-600" value="allowance">
             Allowance - ERC-20
-          </option>
-          <option className="bg-gray-500 text-gray-300" value="buy">
-            Buy - Non ERC-721
-          </option>
-          <option className="bg-gray-500 text-gray-300" value="burn">
-            Burn - Non ERC-721
           </option>
         </select>
         <div className="flex justify-center gap-2">
